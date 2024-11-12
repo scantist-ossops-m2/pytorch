@@ -1632,7 +1632,11 @@ def compile_fx(
         def bw_compiler(
             model: GraphModule, example_inputs: List[InputType]
         ) -> Union[CompiledFxGraph, str]:
-            with dynamo_utils.dynamo_timed("compile_fx.<locals>.bw_compiler"):
+            with dynamo_utils.dynamo_timed(
+                "compile_fx.<locals>.bw_compiler",
+                phase_name="backward_compile",
+                log_pt2_compile_event=True
+            ):
                 model_outputs_node = output_node(model)
                 if config.bw_outputs_user_visible:
                     model_outputs = pytree.arg_tree_leaves(*model_outputs_node.args)

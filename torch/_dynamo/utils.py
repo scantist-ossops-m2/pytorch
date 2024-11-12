@@ -981,7 +981,7 @@ class ChromiumEventLogger:
         if hasattr(self.tls, "stack"):
             return self.tls.stack
         else:
-            self.tls.stack = ["__start__"]
+            self.tls.stack = []
             return self.tls.stack
 
     def get_event_data(self) -> Dict[str, Any]:
@@ -1047,7 +1047,6 @@ class ChromiumEventLogger:
         # cleared the stack.
         stack = self.get_stack()
         stack.clear()
-        stack.append("__start__")
         event_data = self.get_event_data()
         event_data.clear()
 
