@@ -270,6 +270,29 @@ class DeviceMeshTest(DTensorTestBase):
         # Fake pg only have BackendType as BackendType::CUSTOM.
         self.assertEqual(mesh.get_group(1)._get_backend_name(), "custom")
 
+    @with_comms()
+    def test_manual_seed(self):
+        mesh_shape = (2, self.world_size // 2)
+        mesh_2d = init_device_mesh("cpu", mesh_shape, mesh_dim_names=("DP", "TP"))
+        tp_size = mesh_shape[1]
+        dp_size = mesh_shape[0]
+        tp_rank = self.rank % tp_size
+        dp_rank = int(self.rank / tp_size)
+
+        mesh_2d._manual_seed(123)
+        self.assertEqual(torch.initial_seed(), 123)
+        mesh_2d._manual_seed(123, unique_dims=("TP",))
+        self.assertEqual(torch.initial_seed(), 123 + tp_rank)
+        mesh_2d._manual_seed(123, unique_dims=("DP", "TP"))
+        self.assertEqual(torch.initial_seed(), 123 + self.rank)
+        mesh_2d._manual_seed(123, unique_dims=("TP", "DP"))
+        self.assertEqual(torch.initial_seed(), 123 + dp_rank + dp_size * tp_rank)
+
+        with self.assertRaisesRegex(AssertionError, "duplicate"):
+            mesh_2d._manual_seed(123, unique_dims=("TP", "TP"))
+        with self.assertRaisesRegex(AssertionError, "invalid"):
+            mesh_2d._manual_seed(123, unique_dims=("blah",))
+
 
 class DeviceMeshTestNDim(DTensorTestBase):
     @property
