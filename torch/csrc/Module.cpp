@@ -70,6 +70,7 @@
 #include <torch/csrc/dynamo/init.h>
 #include <torch/csrc/functorch/init.h>
 #include <torch/csrc/fx/node.h>
+#include <torch/csrc/export/pybind.h>
 #include <torch/csrc/inductor/aoti_package/pybind.h>
 #include <torch/csrc/inductor/aoti_runner/pybind.h>
 #include <torch/csrc/instruction_counter/Module.h>
@@ -1773,6 +1774,7 @@ PyObject* initModule() {
   torch::profiler::initPythonBindings(module);
   torch::python::init_bindings(module);
   torch::lazy::initLazyBindings(module);
+  torch::_export::initExportBindings(module);
   torch::inductor::initAOTIRunnerBindings(module);
   torch::inductor::initAOTIPackageBindings(module);
 #ifdef USE_ITT
